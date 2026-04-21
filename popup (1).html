@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:560px;height:580px;background:#0f0f17;color:#c4c4e0;font-family:'Microsoft YaHei',sans-serif;font-size:13px;display:flex;flex-direction:column;overflow:hidden}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:#0a0a13;border-bottom:1px solid #1e1e30;flex-shrink:0}
+.logo{color:#a5b4fc;font-weight:700;display:flex;align-items:center;gap:7px}
+.ldot{width:8px;height:8px;background:#6366f1;border-radius:50%}
+#search{background:#13131f;border:1px solid #1e1e30;border-radius:7px;color:#c4c4e0;padding:5px 10px;font-size:12px;outline:none;width:165px;font-family:inherit}
+#search:focus{border-color:#6366f1}
+#search::placeholder{color:#3a3a55}
+
+.body{display:flex;flex:1;overflow:hidden}
+
+/* 左栏 */
+.sb{width:155px;flex-shrink:0;background:#0a0a13;border-right:1px solid #1e1e30;display:flex;flex-direction:column}
+.sb-title{padding:10px 12px 5px;font-size:10px;color:#44445a;text-transform:uppercase;letter-spacing:.08em;font-weight:600;flex-shrink:0}
+#flist{flex:1;overflow-y:auto;padding:0 5px 5px}
+#flist::-webkit-scrollbar{width:3px}
+#flist::-webkit-scrollbar-thumb{background:#1e1e30}
+
+.fi{display:flex;align-items:center;gap:7px;padding:8px;border-radius:8px;cursor:pointer;margin-bottom:2px;position:relative;transition:background .15s}
+.fi:hover{background:#13131f}
+.fi.on{background:rgba(99,102,241,.14)}
+.fdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.fname{flex:1;font-size:12px;color:#8888a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fi.on .fname{color:#a5b4fc;font-weight:500}
+.fcnt{font-size:10px;color:#3a3a55}
+.fi.on .fcnt{color:#6366f1}
+.fdelbtn{display:none;position:absolute;right:5px;background:none;border:none;color:#44445a;cursor:pointer;font-size:11px;padding:1px 4px;border-radius:3px}
+.fi:hover .fdelbtn{display:block}
+.fi:hover .fcnt{visibility:hidden}
+.fdelbtn:hover{color:#ef4444;background:rgba(239,68,68,.12)}
+
+.addbtn{margin:6px;background:none;border:1px dashed #1e1e30;border-radius:8px;color:#44445a;padding:7px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s;flex-shrink:0}
+.addbtn:hover{border-color:#6366f1;color:#a5b4fc;background:rgba(99,102,241,.07)}
+
+/* 右侧 */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-hd{padding:9px 13px 8px;border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#ctitle{font-size:13px;font-weight:600;color:#c4c4e0;display:flex;align-items:center;gap:7px}
+.tbadge{width:10px;height:10px;border-radius:50%}
+#ccnt{font-size:11px;color:#44445a}
+
+#vlist{flex:1;overflow-y:auto;padding:8px 10px 10px}
+#vlist::-webkit-scrollbar{width:4px}
+#vlist::-webkit-scrollbar-thumb{background:#1e1e30;border-radius:2px}
+
+/* 视频卡片 */
+.vc{background:#0d0d18;border:1px solid #1e1e30;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.vc-top{display:flex;gap:10px;padding:10px;cursor:pointer;align-items:flex-start;transition:background .15s}
+.vc-top:hover{background:#111120}
+.vthumb{width:88px;height:54px;border-radius:6px;object-fit:cover;flex-shrink:0;background:#1e1e30}
+.vinfo{flex:1;min-width:0}
+.vtitle{font-size:12px;font-weight:500;color:#c4c4e0;line-height:1.45;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vmeta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.tnotes{font-size:10px;color:#6366f1;background:rgba(99,102,241,.12);padding:2px 7px;border-radius:4px;font-weight:500}
+.tfolder{font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid;font-weight:500}
+.tdate{font-size:10px;color:#3a3a55}
+.vbtns{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.vbtn{background:none;border:1px solid #1e1e30;color:#6666888;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:11px;transition:all .15s;white-space:nowrap}
+.vbtn:hover{border-color:#6366f1;color:#a5b4fc;background:rgba(99,102,241,.1)}
+.vbtn.del:hover{border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,.1)}
+
+/* 归档菜单 */
+.mmenu{display:none;background:#13131f;border:1px solid #2a2a40;border-radius:9px;overflow:hidden;margin:0 10px 0}
+.mmenu.open{display:block}
+.mmenu-title{padding:6px 11px 4px;font-size:10px;color:#44445a;text-transform:uppercase;letter-spacing:.06em}
+.mopt{display:flex;align-items:center;gap:8px;padding:8px 11px;cursor:pointer;font-size:12px;color:#8888a8;border-top:1px solid #1a1a28;transition:background .12s}
+.mopt:hover{background:#1a1a28;color:#c4c4e0}
+.mopt.cur{color:#6366f1}
+.moptdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* 笔记展开 */
+.npanel{display:none;border-top:1px solid #1e1e30;background:#080812}
+.npanel.open{display:block}
+.nrow{display:flex;gap:9px;padding:7px 12px;border-bottom:1px solid #0d0d18;align-items:flex-start}
+.nrow:last-of-type{border-bottom:none}
+.nts{font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#6366f1;flex-shrink:0;cursor:pointer;padding-top:1px;white-space:nowrap}
+.nts:hover{text-decoration:underline}
+.ntxt{font-size:11px;color:#7070a0;line-height:1.6;flex:1}
+.nfoot{padding:8px 12px;border-top:1px solid #1e1e30;text-align:center}
+.golink{color:#6366f1;font-size:11px;text-decoration:none;padding:4px 16px;border:1px solid rgba(99,102,241,.3);border-radius:20px;display:inline-block;transition:all .2s}
+.golink:hover{background:rgba(99,102,241,.12);border-color:#6366f1}
+
+/* 空状态 */
+.empty{text-align:center;padding:50px 20px;color:#3a3a55}
+.eico{font-size:34px;margin-bottom:12px;opacity:.3}
+.empty p{font-size:12px;line-height:1.8}
+
+/* 弹窗 */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#0d0d18;border:1px solid #2a2a40;border-radius:14px;padding:22px;width:255px;box-shadow:0 20px 50px rgba(0,0,0,.8)}
+.modal h3{font-size:14px;color:#a5b4fc;margin-bottom:14px}
+.minput{width:100%;background:#13131f;border:1px solid #1e1e30;border-radius:8px;color:#c4c4e0;padding:8px 10px;font-size:12px;outline:none;margin-bottom:12px;transition:border-color .2s;font-family:inherit}
+.minput:focus{border-color:#6366f1}
+.clrs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.clr{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.clr.on{border-color:#fff;transform:scale(1.2)}
+.mbtns{display:flex;gap:8px}
+.bok{flex:1;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;padding:9px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;transition:all .2s}
+.bok:hover{opacity:.9}
+.bno{background:#13131f;border:1px solid #1e1e30;color:#44445a;padding:9px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .2s}
+.bno:hover{color:#c4c4e0}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo"><div class="ldot"></div>YouTube 时间点笔记</div>
+  <input id="search" placeholder="搜索视频或笔记…">
+</div>
+
+<div class="body">
+  <div class="sb">
+    <div class="sb-title">文件夹</div>
+    <div id="flist"></div>
+    <button class="addbtn" id="addbtn">＋ 新建文件夹</button>
+  </div>
+  <div class="main">
+    <div class="main-hd">
+      <div id="ctitle">全部视频</div>
+      <div id="ccnt"></div>
+    </div>
+    <div id="vlist"></div>
+  </div>
+</div>
+
+<!-- 新建文件夹弹窗 -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>📁 新建文件夹</h3>
+    <input class="minput" id="fname" placeholder="如：金融学习、日常娱乐…">
+    <div class="clrs" id="clrs"></div>
+    <div class="mbtns">
+      <button class="bno" id="bno">取消</button>
+      <button class="bok" id="bok">✓ 创建</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = ['#6366f1','#f59e0b','#10b981','#ef4444','#3b82f6','#ec4899','#f97316','#14b8a6'];
+let pickColor = COLORS[0];
+let activeFolder = '__all__';
+let searchQ = '';
+
+// ── storage helpers ──────────────────────────────────
+function sget(k){ return new Promise(r=>chrome.storage.local.get(k,d=>r(d[k]??null))); }
+function sset(k,v){ return new Promise(r=>chrome.storage.local.set({[k]:v},r)); }
+async function loadFolders(){ return (await sget('folders'))||[]; }
+async function loadVideos(){  return (await sget('videos')) ||{}; }
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtT(sec){
+  sec=Math.floor(sec);
+  const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60,p=n=>String(n).padStart(2,'0');
+  return h?`${h}:${p(m)}:${p(s)}`:`${m}:${p(s)}`;
+}
+function fmtD(ts){
+  if(!ts)return'';
+  const d=new Date(ts),p=n=>String(n).padStart(2,'0');
+  return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// ── main render ──────────────────────────────────────
+async function render(){
+  const [folders, vmap] = await Promise.all([loadFolders(), loadVideos()]);
+  const videos = Object.values(vmap).sort((a,b)=>(b.lastVisited||0)-(a.lastVisited||0));
+  drawFolders(folders, videos);
+  drawVideos(folders, videos);
+}
+
+// ── 左侧文件夹 ───────────────────────────────────────
+function drawFolders(folders, videos){
+  const el = document.getElementById('flist');
+  const items = [
+    {id:'__all__',  name:'全部视频', color:'#6366f1', cnt:videos.length},
+    {id:'__none__', name:'未归档',   color:'#44445a', cnt:videos.filter(v=>!v.folderId).length},
+    ...folders.map(f=>({id:f.id,name:f.name,color:f.color,cnt:videos.filter(v=>v.folderId===f.id).length,del:true}))
+  ];
+  el.innerHTML = items.map(x=>`
+    <div class="fi ${activeFolder===x.id?'on':''}" data-id="${esc(x.id)}">
+      <div class="fdot" style="background:${x.color}"></div>
+      <div class="fname" title="${esc(x.name)}">${esc(x.name)}</div>
+      <div class="fcnt">${x.cnt}</div>
+      ${x.del?`<button class="fdelbtn" data-id="${esc(x.id)}">✕</button>`:''}
+    </div>`).join('');
+
+  el.querySelectorAll('.fi').forEach(fi=>{
+    fi.addEventListener('click',e=>{
+      if(e.target.classList.contains('fdelbtn'))return;
+      activeFolder=fi.dataset.id;
+      render();
+    });
+  });
+  el.querySelectorAll('.fdelbtn').forEach(btn=>{
+    btn.addEventListener('click',async e=>{
+      e.stopPropagation();
+      if(!confirm('删除此文件夹？\n里面的视频笔记不受影响，只是取消归档。'))return;
+      const [folders,vmap]=await Promise.all([loadFolders(),loadVideos()]);
+      Object.values(vmap).forEach(v=>{if(v.folderId===btn.dataset.id)v.folderId=null;});
+      await Promise.all([sset('folders',folders.filter(f=>f.id!==btn.dataset.id)),sset('videos',vmap)]);
+      if(activeFolder===btn.dataset.id)activeFolder='__all__';
+      render();
+    });
+  });
+}
+
+// ── 右侧视频列表 ─────────────────────────────────────
+function drawVideos(folders, videos){
+  // 1. 筛选文件夹
+  let list = videos.filter(v=>{
+    if(activeFolder==='__all__') return true;
+    if(activeFolder==='__none__') return !v.folderId;
+    return v.folderId===activeFolder;
+  });
+
+  // 2. 搜索
+  if(searchQ){
+    const q=searchQ.toLowerCase();
+    list=list.filter(v=>v.title.toLowerCase().includes(q)||(v.notes||[]).some(n=>(n.text||'').toLowerCase().includes(q)));
+  }
+
+  // 3. 标题
+  const tf=document.getElementById('ctitle');
+  if(activeFolder==='__all__'){
+    tf.innerHTML='全部视频';
+  } else if(activeFolder==='__none__'){
+    tf.innerHTML='未归档';
+  } else {
+    const f=folders.find(f=>f.id===activeFolder);
+    tf.innerHTML=f?`<span class="tbadge" style="background:${f.color}"></span>${esc(f.name)}`:'文件夹';
+  }
+  document.getElementById('ccnt').textContent=`${list.length} 个视频`;
+
+  const vl=document.getElementById('vlist');
+  if(!list.length){
+    vl.innerHTML=`<div class="empty"><div class="eico">${searchQ?'🔍':'📂'}</div>
+      <p>${searchQ?'没有找到匹配内容':'这里还没有视频<br><br>在 YouTube 页面观看并保存笔记后，<br>点击视频右侧面板的 🗂 按钮归档到此文件夹'}</p></div>`;
+    return;
+  }
+
+  vl.innerHTML=list.map(v=>{
+    const folder=folders.find(f=>f.id===v.folderId);
+    const notes=v.notes||[];
+    // 归档菜单选项
+    const mopts=[
+      `<div class="mopt ${!v.folderId?'cur':''}" data-vid="${esc(v.id)}" data-fid="">
+        <div class="moptdot" style="background:#44445a"></div>取消归档
+      </div>`,
+      ...folders.map(f=>`
+        <div class="mopt ${v.folderId===f.id?'cur':''}" data-vid="${esc(v.id)}" data-fid="${esc(f.id)}">
+          <div class="moptdot" style="background:${f.color}"></div>${esc(f.name)}
+        </div>`)
+    ].join('');
+
+    return `
+      <div class="vc" id="vc-${esc(v.id)}">
+        <div class="vc-top" data-vid="${esc(v.id)}">
+          <img class="vthumb" src="${esc(v.thumbnail)}" onerror="this.style.opacity='.2'">
+          <div class="vinfo">
+            <div class="vtitle" title="${esc(v.title)}">${esc(v.title)}</div>
+            <div class="vmeta">
+              <span class="tnotes">📝 ${notes.length} 条笔记</span>
+              ${folder?`<span class="tfolder" style="color:${folder.color};border-color:${folder.color}55;background:${folder.color}14">● ${esc(folder.name)}</span>`:''}
+              <span class="tdate">${fmtD(v.lastVisited)}</span>
+            </div>
+          </div>
+          <div class="vbtns">
+            <button class="vbtn" data-act="move" data-vid="${esc(v.id)}">🗂 归档</button>
+            <button class="vbtn" data-act="open" data-url="${esc(v.url)}">▶ 打开</button>
+            <button class="vbtn del" data-act="del" data-vid="${esc(v.id)}">✕ 删除</button>
+          </div>
+        </div>
+
+        <div class="mmenu" id="mm-${esc(v.id)}">
+          <div class="mmenu-title">选择文件夹</div>
+          ${mopts}
+        </div>
+
+        <div class="npanel" id="np-${esc(v.id)}">
+          ${notes.length
+            ? notes.map(n=>`
+                <div class="nrow">
+                  <span class="nts" data-vid="${esc(v.id)}" data-t="${n.time}">${fmtT(n.time)}</span>
+                  <span class="ntxt">${n.text?esc(n.text):'<em style="color:#3a3a55">仅时间标记</em>'}</span>
+                </div>`).join('')
+            :'<div style="padding:11px 12px;color:#3a3a55;font-size:11px;text-align:center">暂无笔记</div>'
+          }
+          <div class="nfoot">
+            <a class="golink" href="${esc(v.url)}" target="_blank">▶ 打开视频</a>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // 点击卡片头部 → 展开笔记
+  vl.querySelectorAll('.vc-top').forEach(top=>{
+    top.addEventListener('click',e=>{
+      if(e.target.closest('.vbtns'))return;
+      const vid=top.dataset.vid;
+      document.getElementById('np-'+vid)?.classList.toggle('open');
+      // 关掉归档菜单
+      document.getElementById('mm-'+vid)?.classList.remove('open');
+    });
+  });
+
+  // 🗂 归档按钮
+  vl.querySelectorAll('[data-act="move"]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const vid=btn.dataset.vid;
+      // 关闭其他
+      vl.querySelectorAll('.mmenu.open').forEach(m=>{if(m.id!=='mm-'+vid)m.classList.remove('open');});
+      document.getElementById('mm-'+vid)?.classList.toggle('open');
+      document.getElementById('np-'+vid)?.classList.remove('open');
+    });
+  });
+
+  // 归档选项点击
+  vl.querySelectorAll('.mopt').forEach(opt=>{
+    opt.addEventListener('click',async e=>{
+      e.stopPropagation();
+      const vid=opt.dataset.vid, fid=opt.dataset.fid||null;
+      const vmap=await loadVideos();
+      if(vmap[vid]){ vmap[vid].folderId=fid; await sset('videos',vmap); }
+      vl.querySelectorAll('.mmenu.open').forEach(m=>m.classList.remove('open'));
+      render();
+    });
+  });
+
+  // ▶ 打开视频
+  vl.querySelectorAll('[data-act="open"]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      chrome.tabs.create({url:btn.dataset.url});
+    });
+  });
+
+  // ✕ 删除
+  vl.querySelectorAll('[data-act="del"]').forEach(btn=>{
+    btn.addEventListener('click',async e=>{
+      e.stopPropagation();
+      if(!confirm('删除该视频的所有笔记？此操作不可撤销。'))return;
+      const vmap=await loadVideos();
+      delete vmap[btn.dataset.vid];
+      await sset('videos',vmap);
+      render();
+    });
+  });
+
+  // 时间点跳转
+  vl.querySelectorAll('.nts').forEach(el=>{
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      chrome.tabs.create({url:`https://www.youtube.com/watch?v=${el.dataset.vid}&t=${Math.floor(el.dataset.t)}`});
+    });
+  });
+
+  // 点击空白处关闭归档菜单
+  document.addEventListener('click',()=>vl.querySelectorAll('.mmenu.open').forEach(m=>m.classList.remove('open')),{once:true});
+}
+
+// ── 新建文件夹弹窗 ───────────────────────────────────
+const overlay=document.getElementById('overlay');
+const clrsEl=document.getElementById('clrs');
+
+clrsEl.innerHTML=COLORS.map(c=>`<div class="clr ${c===pickColor?'on':''}" style="background:${c}" data-c="${c}"></div>`).join('');
+clrsEl.querySelectorAll('.clr').forEach(sw=>{
+  sw.addEventListener('click',()=>{
+    clrsEl.querySelectorAll('.clr').forEach(s=>s.classList.remove('on'));
+    sw.classList.add('on');
+    pickColor=sw.dataset.c;
+  });
+});
+
+document.getElementById('addbtn').addEventListener('click',()=>{
+  document.getElementById('fname').value='';
+  overlay.classList.add('open');
+  setTimeout(()=>document.getElementById('fname').focus(),50);
+});
+document.getElementById('bno').addEventListener('click',()=>overlay.classList.remove('open'));
+document.getElementById('bok').addEventListener('click',async()=>{
+  const name=document.getElementById('fname').value.trim();
+  if(!name){document.getElementById('fname').focus();return;}
+  const folders=await loadFolders();
+  folders.push({id:'f_'+Date.now(),name,color:pickColor,createdAt:Date.now()});
+  await sset('folders',folders);
+  overlay.classList.remove('open');
+  render();
+});
+document.getElementById('fname').addEventListener('keydown',e=>{
+  if(e.key==='Enter')document.getElementById('bok').click();
+  if(e.key==='Escape')overlay.classList.remove('open');
+});
+
+// ── 搜索 ─────────────────────────────────────────────
+document.getElementById('search').addEventListener('input',e=>{
+  searchQ=e.target.value.trim();
+  render();
+});
+
+// ── 启动 ─────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

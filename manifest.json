@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube 时间点笔记",
+  "description": "标记视频时间点、做笔记，支持文件夹分类管理所有视频记录",
+  "version": "2.0.0",
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.youtube.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YouTube 时间点笔记"
+  }
+}
